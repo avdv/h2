@@ -1627,10 +1627,19 @@ impl Actions {
         counts.transition(stream, |counts, stream| {
             if initiator.is_library() {
                 if counts.can_inc_num_local_error_resets() {
+                    tracing::debug!(
+                        "sending internal reset; stream={:?}; reason={:?}; current_resets={:?}; max_resets={:?}",
+                        stream.id,
+                        reason,
+                        counts.num_local_error_resets(),
+                        counts.max_local_error_resets(),
+                    );
                     counts.inc_num_local_error_resets();
                 } else {
                     tracing::warn!(
-                        "locally-reset streams reached limit ({:?})",
+                        "too_many_internal_resets; stream={:?}; reason={:?}; limit={:?}",
+                        stream.id,
+                        reason,
                         counts.max_local_error_resets().unwrap(),
                     );
                     return Err(crate::proto::error::GoAway {
@@ -1656,6 +1665,7 @@ impl Actions {
         })
     }
 
+    #[track_caller]
     fn reset_on_recv_stream_err<B>(
         &mut self,
         buffer: &mut Buffer<Frame<B>>,
@@ -1667,6 +1677,15 @@ impl Actions {
             debug_assert_eq!(stream_id, stream.id);
 
             if counts.can_inc_num_local_error_resets() {
+                let caller = std::panic::Location::caller();
+                tracing::debug!(
+                    caller = %caller,
+                    "reset_on_recv_stream_err; stream={:?}; reason={:?}; current_resets={:?}; max_resets={:?}",
+                    stream_id,
+                    reason,
+                    counts.num_local_error_resets(),
+                    counts.max_local_error_resets(),
+                );
                 counts.inc_num_local_error_resets();
 
                 // Reset the stream.
@@ -1678,7 +1697,9 @@ impl Actions {
                 Ok(())
             } else {
                 tracing::warn!(
-                    "reset_on_recv_stream_err; locally-reset streams reached limit ({:?})",
+                    "too_many_internal_resets; reset_on_recv_stream_err; stream={:?}; reason={:?}; limit={:?}",
+                    stream_id,
+                    reason,
                     counts.max_local_error_resets().unwrap(),
                 );
                 Err(Error::library_go_away_data(

@@ -92,6 +92,10 @@ impl Counts {
         self.num_local_error_reset_streams += 1;
     }
 
+    pub(crate) fn num_local_error_resets(&self) -> usize {
+        self.num_local_error_reset_streams
+    }
+
     pub(crate) fn max_local_error_resets(&self) -> Option<usize> {
         self.max_local_error_reset_streams
     }
