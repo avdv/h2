@@ -869,6 +869,7 @@ impl Recv {
     }
 
     /// Handle remote sending an explicit RST_STREAM.
+    #[track_caller]
     pub fn recv_reset(
         &mut self,
         frame: frame::Reset,
@@ -886,6 +887,15 @@ impl Recv {
         if stream.is_pending_accept {
             if counts.can_inc_num_remote_reset_streams() {
                 counts.inc_num_remote_reset_streams();
+                let caller = std::panic::Location::caller();
+                tracing::debug!(
+                    caller = %caller,
+                    stream = ?frame.stream_id(),
+                    reason = ?frame.reason(),
+                    count = counts.num_remote_reset_streams(),
+                    max = counts.max_remote_reset_streams(),
+                    "recv_reset: incrementing remote reset counter for pending-accept stream",
+                );
             } else {
                 tracing::warn!(
                     "recv_reset; remotely-reset pending-accept streams reached limit ({:?})",

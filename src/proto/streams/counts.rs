@@ -171,6 +171,10 @@ impl Counts {
         self.num_remote_reset_streams += 1;
     }
 
+    pub(crate) fn num_remote_reset_streams(&self) -> usize {
+        self.num_remote_reset_streams
+    }
+
     pub(crate) fn dec_num_remote_reset_streams(&mut self) {
         assert!(self.num_remote_reset_streams > 0);
 

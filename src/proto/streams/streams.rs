@@ -352,6 +352,7 @@ impl<B> DynStreams<'_, B> {
         me.recv_data(self.peer, self.send_buffer, frame)
     }
 
+    #[track_caller]
     pub fn recv_reset(&mut self, frame: frame::Reset) -> Result<(), Error> {
         let mut me = self.inner.lock().unwrap();
 
@@ -596,6 +597,7 @@ impl Inner {
         })
     }
 
+    #[track_caller]
     fn recv_reset<B>(
         &mut self,
         send_buffer: &SendBuffer<B>,
