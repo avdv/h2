@@ -993,6 +993,7 @@ impl Recv {
     }
 
     /// Add a locally reset stream to queue to be eventually reaped.
+    #[track_caller]
     pub fn enqueue_reset_expiration(&mut self, stream: &mut store::Ptr, counts: &mut Counts) {
         if !stream.state.is_local_error() || stream.is_pending_reset_expiration() {
             return;
@@ -1000,6 +1001,14 @@ impl Recv {
 
         if counts.can_inc_num_reset_streams() {
             counts.inc_num_reset_streams();
+            let caller = std::panic::Location::caller();
+            tracing::debug!(
+                caller = %caller,
+                stream = ?stream.id,
+                count = counts.num_local_reset_streams(),
+                max = counts.max_local_reset_streams(),
+                "enqueue_reset_expiration: incrementing local reset counter",
+            );
             tracing::trace!("enqueue_reset_expiration; added {:?}", stream.id);
             self.pending_reset_expired.push(stream);
         } else {

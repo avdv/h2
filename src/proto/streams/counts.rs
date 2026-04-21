@@ -150,6 +150,14 @@ impl Counts {
         self.num_local_reset_streams += 1;
     }
 
+    pub(crate) fn num_local_reset_streams(&self) -> usize {
+        self.num_local_reset_streams
+    }
+
+    pub(crate) fn max_local_reset_streams(&self) -> usize {
+        self.max_local_reset_streams
+    }
+
     pub(crate) fn max_remote_reset_streams(&self) -> usize {
         self.max_remote_reset_streams
     }
