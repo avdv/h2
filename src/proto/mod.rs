@@ -35,7 +35,7 @@ pub const DEFAULT_REMOTE_RESET_STREAM_MAX: usize = 20;
 pub const DEFAULT_LOCAL_RESET_COUNT_MAX: usize = 1024;
 // RFC 9113 suggests allowing at minimum 100 streams, it seems reasonable to
 // by default allow a portion of that to be remembered as reset for some time.
-pub const DEFAULT_RESET_STREAM_MAX: usize = 50;
+pub const DEFAULT_RESET_STREAM_MAX: usize = 200;
 // RFC 9113#5.4.2 suggests ~1 RTT. We don't track that closely, but use a
 // reasonable guess of the average here.
 pub const DEFAULT_RESET_STREAM_SECS: u64 = 1;
